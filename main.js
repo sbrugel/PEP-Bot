@@ -50,20 +50,38 @@ client.on('messageReactionAdd', async (reaction, user) => {
     if (reaction.emoji.name === 'CWBsilver') {
         // Now the message has been cached and is fully available
         if (reaction.count == 1) {
-            if (reaction.message.attachments) { //message has images/videos
-                const trainEmbed = new MessageEmbed()
-                    .setColor('#0099ff')
-                    .setTitle('Quote from ' + reaction.message.author.tag)
-                    .setDescription(reaction.message.content)
-                    .setImage(reaction.message.attachments.first(1)[0].url)
-                channel.send({ embeds: [trainEmbed] });
-            } else {
-                const trainEmbed = new MessageEmbed()
-                    .setColor('#0099ff')
-                    .setTitle('Quote from ' + reaction.message.author.tag)
-                    .setDescription(reaction.message.content)
-                channel.send({ embeds: [trainEmbed] });
-            }
+			var msg = '';
+			if (reaction.message.content == '') {
+				msg = 'No message content provided'
+			} else {
+				msg = reaction.message.content
+			}
+
+			try {
+				const trainEmbed = new MessageEmbed()
+					.setColor('#a1a1a1')
+					.setTitle('Quote from ' + reaction.message.author.tag)
+					.setDescription(msg)
+					.setURL(reaction.message.url)
+					.setImage(reaction.message.attachments.first(1)[0].url)
+				channel.send({ embeds: [trainEmbed] });
+			} catch (error) {
+				const trainEmbed = new MessageEmbed()
+					.setColor('#a1a1a1')
+					.setTitle('Quote from ' + reaction.message.author.tag)
+					.setURL(reaction.message.url)
+					.setDescription(msg)
+				channel.send({ embeds: [trainEmbed] });
+			}
+			if (reaction.message.attachments) { //message has images/videos
+				console.log('attachment detected')
+				for (var i = 0; i < reaction.message.attachments.length; i++) {
+					console.log(reaction.message.attachments[i]);
+				}
+				
+			} else {
+				
+			}
         }
     }
     if (reaction.emoji.name === 'CWBgold') {
