@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const {MessageEmbed, Intents} = require('discord.js');
 const config = require('./config.json');
+const cron = require('cron');
 const client = new Discord.Client({ 
 	partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
 	intents: [Intents.FLAGS.GUILDS,
@@ -12,30 +13,48 @@ const client = new Discord.Client({
 
 client.once('ready', () => {
     console.log('Ready!');
-    fillPhotos();
-    client.user.setActivity("Currently under construction"); 
+    calendar();
+    //fillPhotos();
+    let job = new cron.CronJob('1 0 * * *', calendar); // new calendar post every day at 00:01
+	job.start();
 });
 
 client.login(config.TOKEN);
 
-var prefix = "!";
-
-var usersInGame = [];
-var usersCorrect = [];
-var correct = 0;
-
-var gameInSession = false;
-var answer = null;
-
-// these are all linked to each other
-var stationPictures = [];
-var stationName = [];
-var difficulty = [];
-var authors = [];
+async function calendar() {
+	const d = new Date();
+	let day = d.getDay();
+    let guild = client.guilds.cache.get(config.GUILD_ID);
+	let channel = guild.channels.cache.get(config.calendarChannel);
+	switch (day) {
+		case 0:
+			channel.send({ content: 'https://cdn.discordapp.com/attachments/901837688586506260/901838879072591892/Scotrail_Sunday.mp4' });
+            break;
+		case 1:
+            channel.send({ content: 'https://cdn.discordapp.com/attachments/901837688586506260/901838860588298300/Metropolitan_Monday.mp4' });
+            break;
+		case 2:
+            channel.send({ content: 'https://cdn.discordapp.com/attachments/901837688586506260/901838885221449738/video0-28.mp4' });
+            break;
+		case 3:
+            channel.send({ content: 'https://cdn.discordapp.com/attachments/901837688586506260/901838861242605628/Overhead_Wires_Wednesday.mp4' });
+            break;
+		case 4:
+            channel.send({ content: 'https://cdn.discordapp.com/attachments/901837688586506260/901838876878979123/Third_Rail_Thursday.mp4' });
+            break;
+		case 5:
+            channel.send({ content: 'https://cdn.discordapp.com/attachments/901837688586506260/901838856654045294/Freightliner_Friday.mp4' });
+            break;
+		case 6:
+            channel.send({ content: 'https://cdn.discordapp.com/attachments/837687417216958535/868268181519732746/317dsprinsat.mp4' });
+            break;
+		default:
+			break;
+	}
+}
 
 client.on('messageReactionAdd', async (reaction, user) => {
     let guild = client.guilds.cache.get(config.GUILD_ID);
-	let channel = guild.channels.cache.get(config.SENDTO);
 	// When we receive a reaction we check if the reaction is partial or not
 	if (reaction.partial) {
 		// If the message this reaction belongs to was removed the fetching might result in an API error, which we need to handle
@@ -48,6 +67,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
 		}
     }
     if (reaction.emoji.name === 'CWBsilver') {
+        let channel = guild.channels.cache.get(config.silverQuotesChannel);
         // Now the message has been cached and is fully available
         if (reaction.count == 1) {
 			var msg = '';
@@ -56,39 +76,76 @@ client.on('messageReactionAdd', async (reaction, user) => {
 			} else {
 				msg = reaction.message.content
 			}
-
 			try {
-				const trainEmbed = new MessageEmbed()
+				const embed = new MessageEmbed()
 					.setColor('#a1a1a1')
 					.setTitle('Quote from ' + reaction.message.author.tag)
 					.setDescription(msg)
 					.setURL(reaction.message.url)
 					.setImage(reaction.message.attachments.first(1)[0].url)
-				channel.send({ embeds: [trainEmbed] });
+				channel.send({ embeds: [embed] });
 			} catch (error) {
-				const trainEmbed = new MessageEmbed()
+				const embed = new MessageEmbed()
 					.setColor('#a1a1a1')
 					.setTitle('Quote from ' + reaction.message.author.tag)
 					.setURL(reaction.message.url)
 					.setDescription(msg)
-				channel.send({ embeds: [trainEmbed] });
-			}
-			if (reaction.message.attachments) { //message has images/videos
-				console.log('attachment detected')
-				for (var i = 0; i < reaction.message.attachments.length; i++) {
-					console.log(reaction.message.attachments[i]);
-				}
-				
-			} else {
-				
+				channel.send({ embeds: [embed] });
 			}
         }
     }
     if (reaction.emoji.name === 'CWBgold') {
+        let channel = guild.channels.cache.get(config.goldQuotesChannel);
         if (reaction.count == 5) {
+			var msg = '';
+			if (reaction.message.content == '') {
+				msg = 'No message content provided'
+			} else {
+				msg = reaction.message.content
+			}
+
+			try {
+				const embed = new MessageEmbed()
+					.setColor('##fffb00')
+					.setTitle('Quote from ' + reaction.message.author.tag)
+					.setDescription(msg)
+					.setURL(reaction.message.url)
+					.setImage(reaction.message.attachments.first(1)[0].url)
+				channel.send({ embeds: [embed] });
+			} catch (error) {
+				const embed = new MessageEmbed()
+					.setColor('##fffb00')
+					.setTitle('Quote from ' + reaction.message.author.tag)
+					.setURL(reaction.message.url)
+					.setDescription(msg)
+				channel.send({ embeds: [embed] });
+			}
         }
     }
 });
+
+
+/* 
+THE CODE BELOW IS FROM GUESS THE STATION, AN IN-BOT GAME THAT WAS IMPLENTED DURING DISCORD.JS V12.
+IT IS CURRENTLY OUTDATED AND NEEDS RE-WORKING AND HAS BEEN ENTIRELY COMMENTED OUT AS SUCH.
+Feel free to modify this at your time, and throw a pull request at me so I can integrate it into
+the next version of the bot.
+*/
+
+/*
+var usersInGame = [];
+var usersCorrect = [];
+var correct = 0;
+
+var gameInSession = false;
+var answer = null;
+
+// these are all linked to each other
+var stationPictures = [];
+var stationName = [];
+var difficulty = [];
+var authors = [];
+*/
 
 /*
 client.on('message', message => {
@@ -290,7 +347,6 @@ client.on('message', message => {
         }
     }
 });
-*/
 
 function fillPhotos() {
     pushPhoto('http://cynxs-stuff.com/media/chrome_o2Y6i7uUXa.png', 'Dalmuir', 'Easy', '6089Gardener on Flickr');
@@ -302,3 +358,4 @@ function pushPhoto(pic, name, diff, photographer) {
     difficulty.push(diff);
     authors.push(photographer);
 }
+*/
