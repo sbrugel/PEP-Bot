@@ -106,7 +106,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
 			try {
 				const embed = new MessageEmbed()
-					.setColor('##fffb00')
+					.setColor('#fffb00')
 					.setTitle('Quote from ' + reaction.message.author.tag)
 					.setDescription(msg)
 					.setURL(reaction.message.url)
@@ -114,7 +114,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
 				channel.send({ embeds: [embed] });
 			} catch (error) {
 				const embed = new MessageEmbed()
-					.setColor('##fffb00')
+					.setColor('#fffb00')
 					.setTitle('Quote from ' + reaction.message.author.tag)
 					.setURL(reaction.message.url)
 					.setDescription(msg)
